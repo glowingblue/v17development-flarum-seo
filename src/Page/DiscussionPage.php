@@ -7,8 +7,10 @@ use Flarum\Discussion\DiscussionRepository;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\Http\UrlGenerator;
+use Flarum\Http\SlugManager;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Tags\Tag;
+use Flarum\User\User;
 use Flarum\User\UserRepository;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Arr;
@@ -47,6 +49,11 @@ class DiscussionPage implements PageDriverInterface
     protected $urlGenerator;
 
     /**
+     * @var SlugManager
+     */
+    protected $slugManager;
+
+    /**
      * @param SettingsRepositoryInterface $settingsRepositoryInterface
      * @param DiscussionRepository $discussionRepository
      * @param TranslatorInterface $translator
@@ -57,7 +64,8 @@ class DiscussionPage implements PageDriverInterface
         UserRepository $userRepository,
         ExtensionManager $extensionManager,
         UrlGenerator $urlGenerator,
-        Dispatcher $events
+        Dispatcher $events,
+        SlugManager $slugManager
     ) {
         $this->settingsRepositoryInterface = $settingsRepositoryInterface;
         $this->discussionRepository = $discussionRepository;
@@ -65,6 +73,7 @@ class DiscussionPage implements PageDriverInterface
         $this->extensionManager = $extensionManager;
         $this->urlGenerator = $urlGenerator;
         $this->events = $events;
+        $this->slugManager = $slugManager;
     }
 
     public function extensionDependencies(): array
@@ -141,7 +150,7 @@ class DiscussionPage implements PageDriverInterface
                 $properties->setSchemaJson('author', [
                     "@type" => "Person",
                     "name" => $user->getDisplayNameAttribute(),
-                    "url" => $this->urlGenerator->to('forum')->route('user', ['username' => $user->username])
+                    "url" => $this->urlGenerator->to('forum')->route('user', ['username' => $this->slugManager->forResource(User::class)->toSlug($user)]),
                 ]);
             }
         } catch (\Exception $e) {

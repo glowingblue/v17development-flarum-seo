@@ -7,9 +7,11 @@ use Flarum\Discussion\DiscussionRepository;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\Http\UrlGenerator;
+use Flarum\Http\SlugManager;
 use Flarum\Post\Post;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Tags\Tag;
+use Flarum\User\User;
 use Flarum\User\UserRepository;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Arr;
@@ -53,6 +55,11 @@ class DiscussionBestAnswerPage implements PageDriverInterface
     protected $discussionFallback;
 
     /**
+     * @var SlugManager
+     */
+    protected $slugManager;
+
+    /**
      * @param SettingsRepositoryInterface $settingsRepositoryInterface
      * @param DiscussionRepository $discussionRepository
      * @param TranslatorInterface $translator
@@ -67,7 +74,8 @@ class DiscussionBestAnswerPage implements PageDriverInterface
         ExtensionManager $extensionManager,
         UrlGenerator $urlGenerator,
         DiscussionPage $discussionFallback,
-        Dispatcher $events
+        Dispatcher $events,
+        SlugManager $slugManager
     ) {
         $this->settingsRepositoryInterface = $settingsRepositoryInterface;
         $this->discussionRepository = $discussionRepository;
@@ -76,6 +84,7 @@ class DiscussionBestAnswerPage implements PageDriverInterface
         $this->urlGenerator = $urlGenerator;
         $this->discussionFallback = $discussionFallback;
         $this->events = $events;
+        $this->slugManager = $slugManager;
     }
 
     public function extensionDependencies(): array
@@ -155,7 +164,8 @@ class DiscussionBestAnswerPage implements PageDriverInterface
             'dateCreated' => $seoMeta->created_at,
             'author' => [
                 "@type" => "Person",
-                "name" => $discussion->user?->getDisplayNameAttribute()
+                "name" => $discussion->user?->getDisplayNameAttribute(),
+                "url" => $discussion->user ? $this->urlGenerator->to('forum')->route('user', ['username' => $this->slugManager->forResource(User::class)->toSlug($discussion->user)]) : null,
             ],
             'answerCount' => $discussion->comment_count - 1
         ];
@@ -192,7 +202,8 @@ class DiscussionBestAnswerPage implements PageDriverInterface
                 'url' => $this->urlGenerator->to('forum')->route('discussion', ['id' => $discussion->id . '-' . $discussion->slug, 'near' => $post->number]),
                 'author' => [
                     "@type" => "Person",
-                    "name" => $post->user ? $post->user->display_name : null
+                    "name" => $post->user ? $post->user->display_name : null,
+                    "url" => $post->user ? $this->urlGenerator->to('forum')->route('user', ['username' => $this->slugManager->forResource(User::class)->toSlug($post->user)]) : null,
                 ]
             ];
 
