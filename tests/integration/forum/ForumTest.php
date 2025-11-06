@@ -10,7 +10,7 @@ class ForumTest extends TestCase
     {
         parent::setUp();
 
-        $this->extension('v17development-flarum-seo');
+        $this->extension('v17development-seo');
     }
 
     /**
