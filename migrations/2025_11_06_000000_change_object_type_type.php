@@ -18,7 +18,7 @@ return [
             $schema->table('seo_meta', function (Blueprint $table) {
                 $table->dropUnique(['object_id', 'object_type']);
 
-                $table->string('object_type', 65535)->change();
+                $table->string('object_type', 255)->change();
 
                 $table->unique(['object_id', 'object_type']);
             });
