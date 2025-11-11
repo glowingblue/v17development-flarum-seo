@@ -30,7 +30,8 @@
     "flarum/tags": "^1.8",
     "fof/pages": "^1.0",
     "fof/best-answer": "^1.6",
-    "flarum/phpstan": "^1.0"
+    "flarum/phpstan": "^1.0",
+    "flarum/testing": "^1.0.0"
   },
   "conflict": {
     "zerosonesfun/elint": "*",
@@ -54,10 +55,33 @@
     },
     "flagrow": {
       "discuss": "https://discuss.flarum.org/d/18316"
+    },
+    "flarum-cli": {
+      "modules": {
+        "backendTesting": true
+      }
     }
   },
   "scripts": {
     "analyse:phpstan": "phpstan analyse",
-    "clear-cache:phpstan": "phpstan clear-result-cache"
+    "clear-cache:phpstan": "phpstan clear-result-cache",
+    "test": [
+      "@test:unit",
+      "@test:integration"
+    ],
+    "test:unit": "phpunit -c tests/phpunit.unit.xml",
+    "test:integration": "phpunit -c tests/phpunit.integration.xml",
+    "test:setup": "@php tests/integration/setup.php"
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "V17Development\\FlarumSeo\\Tests\\": "tests/"
+    }
+  },
+  "scripts-descriptions": {
+    "test": "Runs all tests.",
+    "test:unit": "Runs all unit tests.",
+    "test:integration": "Runs all integration tests.",
+    "test:setup": "Sets up a database for use with integration tests. Execute this only once."
   }
 }

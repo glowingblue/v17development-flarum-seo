@@ -11,7 +11,7 @@ return [
 
                 // Object information
                 $table->integer('object_id');
-                $table->string('object_type', 65535);
+                $table->string('object_type', 255);
 
                 // Make the combination Object ID and Object Type unique
                 $table->unique(['object_id', 'object_type']);
